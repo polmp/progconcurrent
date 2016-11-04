@@ -1,0 +1,5 @@
+erl -name boto2@127.0.0.1 -setcookie pole
+net_adm:ping('boto8@127.0.0.1').
+
+---
+erl -name boto8@127.0.0.1 -setcookie pole
