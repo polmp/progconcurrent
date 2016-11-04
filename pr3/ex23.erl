@@ -25,4 +25,4 @@ activaBotons(N,off) -> lists:map(fun(A) -> boto8 ! {light_off, A} end, lists:seq
 
 
 %start() -> Val = bots:nou(8,self()), ProcApart = nouProces(gestiona, [Val]), bots:nou(2,ProcApart).
-start() -> Boto8 = bots:nou(8,nouProces(esperaValorB8,[])), register(boto8, Boto8), Boto2 = bots:nou(2,nouProces(esperaValorB2,[])), register(boto2,Boto2).
+start() -> Boto8 = bots:nou(8,nouProces(esperaValorB8,[])), register(boto8, Boto8), Boto2 = bots:nou(2,nouProces(esperaValorB2,[])).
