@@ -9,9 +9,10 @@ procusuari() -> receive
 	{received,Patata,Data} -> io:format("Usuari ~p rep patata ~p~n",[element(1,Data),Patata]),central ! {patata,Patata-1,Data},procusuari()
 end.
 
-%%Envia una patata aleatoria
+%%Envia una patata amb valor aleatori a un usuari aleatori de LlistaPid
 enviaPatata(LlistaPid,random) -> Usuari=rand:uniform(len(LlistaPid)),Patata=rand:uniform(6),{_,Pidpat}=lists:nth(Usuari,LlistaPid),Pidpat !{received,Patata,lists:nth(Usuari,LlistaPid)};
 
+%%Envia una patata de valor N a un usuari aleatori de LlistaPid
 enviaPatata(LlistaPid,N) -> Usuari = rand:uniform(len(LlistaPid)), {_,Pid}=lists:nth(Usuari,LlistaPid),Pid ! {received,N,lists:nth(Usuari,LlistaPid)}. 
 
 central([_]) -> receive
