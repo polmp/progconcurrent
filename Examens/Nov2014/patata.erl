@@ -6,11 +6,8 @@ len([]) -> 0.
 
 procusuari() -> receive
 	{received,0,Data} -> io:format("Usuari ~p DEP~n",[element(1,Data)]),central ! {dep,Data};
-	{received,Patata,Data} -> io:format("REBO patata ~p~n",[Patata]),central ! {patata,Patata-1,Data},procusuari()
+	{received,Patata,Data} -> io:format("Usuari ~p rep patata ~p~n",[element(1,Data),Patata]),central ! {patata,Patata-1,Data},procusuari()
 end.
-
-getId({Id,_}) -> Id.
-getPid({_,Pid}) -> Pid.
 
 %%Envia una patata aleatoria
 enviaPatata(LlistaPid,random) -> Usuari=rand:uniform(len(LlistaPid)),Patata=rand:uniform(6),{_,Pidpat}=lists:nth(Usuari,LlistaPid),Pidpat !{received,Patata,lists:nth(Usuari,LlistaPid)};
