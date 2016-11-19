@@ -1,8 +1,5 @@
 -module(fumadors2).
--compile(export_all).
-
-len([_|T]) -> 1+len(T);
-len([]) -> 0.
+-export([start/0, procFumador/0, procProveidor/1]).
 
 procFumador() -> receive
 	{smoke,B} -> io:format("Tinc ~p~n",[B]),liar(),fumar(),central!ok,procFumador()

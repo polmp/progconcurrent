@@ -1,8 +1,5 @@
 -module(fumadors).
--compile(export_all).
-
-len([_|T]) -> 1+len(T);
-len([]) -> 0.
+-export([start/0,procProveidor/1,procFumador/1]).
 
 procFumador(Tipus) -> receive
 	{Tipus,_} -> procFumador(Tipus);
@@ -23,7 +20,7 @@ liar() -> io:format("Liant el cigarret...~n"),timer:sleep(500).
 fumar() -> io:format("Fumant el cigarret...~n"),timer:sleep(1000),central!ok.
 
 %Genera una tupla amb dos productes (NO pot sortir repetit)
-generaAleatori(Elements) -> PrEl=lists:nth(rand:uniform(len(Elements)),Elements),SeEl=lists:nth(rand:uniform(len(Elements)-1),lists:delete(PrEl,Elements)),{PrEl,SeEl}.
+generaAleatori(Elements) -> PrEl=lists:nth(rand:uniform(3),Elements),SeEl=lists:nth(2,lists:delete(PrEl,Elements)),{PrEl,SeEl}.
 
 
 %Generem dos productes aleatoris
