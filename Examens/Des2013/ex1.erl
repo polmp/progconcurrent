@@ -1,5 +1,5 @@
 -module(ex1).
--compile(export_all).
+-export([start/1,esclau/0,nodeCentral/1]).
 
 len([_|A]) -> 1+len(A);
 len([]) -> 0.
