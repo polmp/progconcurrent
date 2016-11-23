@@ -1,5 +1,5 @@
 -module(sensor).
--export([sensorProc/1]).
+-export([sensorProc/0]).
 -import(motor,[calculaAltura/2]).
 -include("motor.hrl").
 
@@ -12,14 +12,14 @@ calculaSensor(Altura,[{Num, Alt}|Llista]) ->
 		false -> calculaSensor(Altura,Llista)
 	end.
 
-sensorProc(PidAsc) -> receive
+sensorProc() -> receive
 	kill -> ok;
-	at_top -> PidAsc ! at_top, sensorProc(PidAsc); %al ascensor
-	at_bottom -> PidAsc ! at_bottom, sensorProc(PidAsc);
-	ready -> PidAsc ! reset, sensorProc(PidAsc); %Quan rebem un ready, acabem d'inicialitzar el motor, enviem un reset al ascensor
+	at_top -> ascensor ! at_top, sensorProc(); %al ascensor
+	at_bottom -> ascensor ! at_bottom, sensorProc();
+	ready -> ascensor ! reset, sensorProc(); %Quan rebem un ready, acabem d'inicialitzar el motor, enviem un reset al ascensor
 	{at,P} -> case calculaSensor(P,[{0,0.5},{1,5.5},{2,8.5},{3,12.5}]) of
-		undef -> sensorProc(PidAsc);
-		{Val,_} -> io:format("EnvioSensorPis -> ~p~n",[Val]),PidAsc ! {sens_pl,Val},sensorProc(PidAsc)  %Enviem pid al ascensor 
+		undef -> sensorProc();
+		{Val,_} -> io:format("EnvioSensorPis -> ~p~n",[Val]),ascensor ! {sens_pl,Val},sensorProc()  %Enviem pid al ascensor 
 	end 
 end.
 
