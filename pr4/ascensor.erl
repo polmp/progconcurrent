@@ -1,6 +1,6 @@
 -module(ascensor).
 -import(motor,[start/1]).
--compile(export_all).
+-export([startAll/0,ascensorProc/1]).
 
 pushedButton(Button) ->
 	receive

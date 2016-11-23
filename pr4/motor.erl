@@ -1,5 +1,5 @@
 -module(motor).
--compile(export_all).
+-export([calculaAltura/2,startMotor/2,start/1]).
 -include("motor.hrl").
 
 calculaAltura(H0,up) -> H0+(?VELCAB*(?RESOL/1000)); 

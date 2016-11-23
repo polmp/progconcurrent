@@ -1,5 +1,5 @@
 -module(sensor).
--compile(export_all).
+-export([sensorProc/1]).
 -import(motor,[calculaAltura/2]).
 -include("motor.hrl").
 
