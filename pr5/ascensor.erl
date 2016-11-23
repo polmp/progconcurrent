@@ -6,7 +6,8 @@ pushedButton(Button) ->
 	receive
 		at_bottom -> motor ! run_up, pushedButton(0);
 		{sens_pl,P} when Button =:= P -> motor ! stop, botonera ! {light_off,P}, botonera ! {display,P}, ascensorProc(P);
-		{sens_pl,P} -> botonera ! {display,P}, pushedButton(Button)
+		{sens_pl,P} -> botonera ! {display,P}, pushedButton(Button);
+		abort -> motor ! stop, motor ! kill, ascensor ! kill %Rebem abort de la botonera quan estem fent. Motor ja fa kill de sensor
 	end.
 
 ascensorProc(BotoAct) -> receive
@@ -15,8 +16,8 @@ ascensorProc(BotoAct) -> receive
 	{clicked,_} -> ascensorProc(BotoAct);
 	at_bottom -> motor ! run_up;
 	reset -> io:format("Fent reset...~n"), motor ! run_down, pushedButton(288);
-	abort -> motor ! kill;
-	kill -> motor ! kill, ok
+	kill -> ok;
+	abort -> motor ! stop, motor ! kill,ok
 end.
 
 start() -> register(ascensor,spawn(?MODULE, ascensorProc, [1])),register(botonera,bcab:new(4,ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [5.5])),sensor ! ready.
