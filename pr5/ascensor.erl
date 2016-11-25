@@ -1,6 +1,6 @@
 -module(ascensor).
 -import(motor,[start/1]).
--export([start/0,ascensorProc/1,ascensorProc/3,estatReset/1]).
+-export([start/0,ascensorProc/1,ascensorProc/3,estatReset/1,checkDifferentInList/2]).
 
 removeLast([]) -> [];
 removeLast([_]) -> [] ++ removeLast([]);
@@ -32,27 +32,28 @@ ascensorProc(e1,Button,[]) -> receive
 end;
 
 ascensorProc(e1,Button,List) -> receive
-	{sens_pl,Button} -> stop(),light_off(Button),display(Button),timer:sleep(2000),NextFloor=lists:nth(1,lists:reverse(List)),
+	{sens_pl,Button} -> stop(),light_off(Button),display(Button),NextFloor=lists:nth(1,lists:reverse(List)),
 		case NextFloor > Button of
 			true -> io:format("Estic al PIS ~p, Desti seguent: ~p~n",[Button,lists:nth(1,lists:reverse(List))]),
 				run_up(), ascensorProc(e1,NextFloor,removeLast(List));
-			false when NextFloor =:= Button -> ListCheckNext = lists:reverse(checkDifferentInList(Button,lists:reverse(List))), 
-				Next = lists:nth(1,lists:reverse(ListCheckNext)), io:format("Hem apretat el mateix, accio -> passem al pis ~p~n",[Next]), 
-				if Next > NextFloor ->
-					run_up(),ascensorProc(e1,Next,removeLast(ListCheckNext));
-				Next < NextFloor ->
-					run_down(),ascensorProc(e1,Next,removeLast(ListCheckNext))
-				end;
+			false when NextFloor =:= Button -> 
+				ListCheckNext = lists:reverse(checkDifferentInList(Button,lists:reverse(List))),
+				if ListCheckNext =/= [] -> 
+					Next = lists:nth(1,lists:reverse(ListCheckNext)), io:format("Hem apretat el mateix, accio -> passem al pis ~p~n",[Next]),
+					if Next > NextFloor ->
+						run_up(),ascensorProc(e1,Next,removeLast(ListCheckNext));
+					Next < NextFloor ->
+						run_down(),ascensorProc(e1,Next,removeLast(ListCheckNext))
+					end;
+				true -> ascensorProc(Button) end;
 			false -> io:format("Estic al PIS ~p, Desti seguent: ~p~n",[Button,lists:nth(1,lists:reverse(List))]),
 				run_down(),ascensorProc(e1,NextFloor,removeLast(List))
-			end;
+			end, timer:sleep(2000);
 		
 	{sens_pl, K} -> display(K), ascensorProc(e1,Button,List);
 	{clicked,N} -> light_on(N),ascensorProc(e1,Button,[N|List]);
 	abort -> killAll()
 end.
-
-
 
 ascensorProc(BotoAct) -> receive
 	{clicked,K} when K < BotoAct -> io:format("Comencem amb el PIS ~p~n",[K]),ascensorProc(e0,down,K);
