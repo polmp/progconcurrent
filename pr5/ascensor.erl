@@ -48,7 +48,7 @@ ascensorProc(e1,Button,List) -> receive
 				true -> ascensorProc(Button) end;
 			false -> light_on(lists:nth(1,lists:reverse(List))),io:format("Estic al PIS ~p, Desti seguent: ~p~n",[Button,lists:nth(1,lists:reverse(List))]),
 				run_down(),ascensorProc(e1,NextFloor,removeLast(List))
-			end, timer:sleep(2000);
+			end;
 		
 	{sens_pl, K} -> display(K), ascensorProc(e1,Button,List);
 	{clicked,N} -> light_on(N),ascensorProc(e1,Button,[N|List]);
