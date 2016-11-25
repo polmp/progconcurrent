@@ -34,19 +34,19 @@ end;
 ascensorProc(e1,Button,List) -> receive
 	{sens_pl,Button} -> stop(),light_off(Button),display(Button),NextFloor=lists:nth(1,lists:reverse(List)),
 		case NextFloor > Button of
-			true -> io:format("Estic al PIS ~p, Desti seguent: ~p~n",[Button,lists:nth(1,lists:reverse(List))]),
+			true -> light_on(lists:nth(1,lists:reverse(List))),io:format("Estic al PIS ~p, Desti seguent: ~p~n",[Button,lists:nth(1,lists:reverse(List))]),
 				run_up(), ascensorProc(e1,NextFloor,removeLast(List));
 			false when NextFloor =:= Button -> 
 				ListCheckNext = lists:reverse(checkDifferentInList(Button,lists:reverse(List))),
 				if ListCheckNext =/= [] -> 
-					Next = lists:nth(1,lists:reverse(ListCheckNext)), io:format("Hem apretat el mateix, accio -> passem al pis ~p~n",[Next]),
+					Next = lists:nth(1,lists:reverse(ListCheckNext)), light_on(Next),io:format("Hem apretat el mateix, accio -> passem al pis ~p~n",[Next]),
 					if Next > NextFloor ->
 						run_up(),ascensorProc(e1,Next,removeLast(ListCheckNext));
 					Next < NextFloor ->
 						run_down(),ascensorProc(e1,Next,removeLast(ListCheckNext))
 					end;
 				true -> ascensorProc(Button) end;
-			false -> io:format("Estic al PIS ~p, Desti seguent: ~p~n",[Button,lists:nth(1,lists:reverse(List))]),
+			false -> light_on(lists:nth(1,lists:reverse(List))),io:format("Estic al PIS ~p, Desti seguent: ~p~n",[Button,lists:nth(1,lists:reverse(List))]),
 				run_down(),ascensorProc(e1,NextFloor,removeLast(List))
 			end, timer:sleep(2000);
 		
