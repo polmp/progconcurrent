@@ -19,7 +19,6 @@ calculaSensor(Altura,[{Num, Alt}|Llista]) ->
 
 sensorProc() -> receive
 	kill -> ok;
-	stop -> sensorProc();
 	at_top -> at_top(), sensorProc(); %al ascensor
 	at_bottom -> at_bottom(), sensorProc();
 	ready -> reset(), sensorProc(); %Quan rebem un ready, acabem d'inicialitzar el motor, enviem un reset al ascensor
