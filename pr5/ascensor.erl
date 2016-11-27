@@ -18,7 +18,7 @@ light_off(P) -> botonera ! {light_off,P}.
 light_on(P) -> botonera ! {light_on,P}.
 display(P) -> botonera ! {display,P}.
 kill(Var) -> Var ! kill.
-killAll() -> stop(),kill(motor),kill(),aborted.
+killAll() -> stop(),kill(motor),aborted.
 abort() -> ascensor!abort.
 pushed(Pis) -> ascensor ! {clicked,Pis}. 
 
@@ -29,8 +29,10 @@ ascensorProc(e0,up,Button) -> light_on(Button), run_up(), ascensorProc(e1,Button
 ascensorProc(e1,Button,[]) -> receive
 	{sens_pl, Button} -> stop(),io:format("No hi ha pisos pendents, acabem amb ~p~n",[Button]),display(Button),light_off(Button), set_light(Button,all,off),display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),ascensorProc(Button);
 	{sens_pl, K} -> display(K), display(Button,K),ascensorProc(e1,Button,[]);
-	{clicked,N} -> light_on(N),ascensorProc(e1,Button,[N]);
-	abort -> killAll()
+	{clicked,_} -> ascensorProc(e1,Button,[]);
+	%Si afegim aquesta linia activem la possibilitat de poder cridar l'ascensor amb cua
+	%{clicked,N} -> light_on(N),ascensorProc(e1,Button,[N]);
+	abort -> bppool:kill(),killAll()
 	%A -> io:format("MISSATGE DESCONEGUT: ~p~n",[A]),ascensorProc(e1,Button)
 end;
 
@@ -63,19 +65,19 @@ ascensorProc(BotoAct) -> receive
 	{clicked,K} when K > BotoAct -> io:format("Comencem amb el PIS ~p~n",[K]),set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,up,K);
 	{clicked,_} -> ascensorProc(BotoAct);
 	kill -> ok;
-	abort -> killAll()
+	abort -> killAll(),bbpool:kill()
 end.
 
 estatReset(e0) -> receive
 	reset -> io:format("Fent reset...~n"), run_down(), estatReset(e1); %Rebem un reset del sensor
-	abort -> killAll();
+	abort -> killAll(),bbpool:kill();
 	_ -> estatReset(e0)
 end;
 
 estatReset(e1) -> receive
 	at_bottom -> run_up(), estatReset(e2);
 	reset -> io:format("Fent reset...~n"),estatReset(e0);
-	abort -> killAll();
+	abort -> killAll(),bbpool:kill();
 	_ -> estatReset(e1)
 end;
 
