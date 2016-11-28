@@ -27,7 +27,7 @@ ascensorProc(e0,down,Button) -> light_on(Button), run_down(), ascensorProc(e1,Bu
 ascensorProc(e0,up,Button) -> light_on(Button), run_up(), ascensorProc(e1,Button,[]);
 
 ascensorProc(e1,Button,[]) -> receive
-	{sens_pl, Button} -> stop(),io:format("No hi ha pisos pendents, acabem amb ~p~n",[Button]),display(Button),light_off(Button), set_light(Button,all,off),bppool:display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),ascensorProc(Button);
+	{sens_pl, Button} -> stop(),display(Button),light_off(Button), set_light(Button,all,off),bppool:display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),ascensorProc(Button);
 	{sens_pl, K} -> display(K), display(Button,K),ascensorProc(e1,Button,[]);
 	{clicked,_} -> ascensorProc(e1,Button,[]);
 	%Si afegim aquesta linia activem la possibilitat de poder cridar l'ascensor amb cua
@@ -61,8 +61,8 @@ ascensorProc(e1,Button,List) -> receive
 end.
 
 ascensorProc(BotoAct) -> receive
-	{clicked,K} when K < BotoAct -> io:format("Comencem amb el PIS ~p~n",[K]),set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,down,K);
-	{clicked,K} when K > BotoAct -> io:format("Comencem amb el PIS ~p~n",[K]),set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,up,K);
+	{clicked,K} when K < BotoAct -> set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,down,K);
+	{clicked,K} when K > BotoAct -> set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,up,K);
 	{clicked,_} -> ascensorProc(BotoAct);
 	kill -> ok;
 	abort -> killAll(),bppool:kill(),wxenv!kill
