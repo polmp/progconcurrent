@@ -15,7 +15,7 @@ new(Pis) ->
     spawn(?MODULE, bpis_proc, [Pis]).
 
 display(Pid,M) ->
-    Pid!{display,M}.
+    Pid!{display,M+1}.
 
 set_light(Pid, Dir, on) ->
     Pid!{light_on, Dir};

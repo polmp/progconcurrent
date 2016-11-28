@@ -27,7 +27,7 @@ ascensorProc(e0,down,Button) -> light_on(Button), run_down(), ascensorProc(e1,Bu
 ascensorProc(e0,up,Button) -> light_on(Button), run_up(), ascensorProc(e1,Button,[]);
 
 ascensorProc(e1,Button,[]) -> receive
-	{sens_pl, Button} -> stop(),io:format("No hi ha pisos pendents, acabem amb ~p~n",[Button]),display(Button),light_off(Button), set_light(Button,all,off),display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),ascensorProc(Button);
+	{sens_pl, Button} -> stop(),io:format("No hi ha pisos pendents, acabem amb ~p~n",[Button]),display(Button),light_off(Button), set_light(Button,all,off),bppool:display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),ascensorProc(Button);
 	{sens_pl, K} -> display(K), display(Button,K),ascensorProc(e1,Button,[]);
 	{clicked,_} -> ascensorProc(e1,Button,[]);
 	%Si afegim aquesta linia activem la possibilitat de poder cridar l'ascensor amb cua
@@ -88,7 +88,7 @@ estatReset(e2) -> receive
 end.
 
 
-start() -> register(ascensor,spawn(?MODULE, estatReset, [e0])),register(botonera,bcab:new(4,ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [5.5])),sensor ! ready,initial_reset, wxenv:start(), bppool:start(3). 
+start() -> register(ascensor,spawn(?MODULE, estatReset, [e0])),register(botonera,bcab:new(4,ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [5.5])),sensor ! ready,initial_reset, wxenv:start(), bppool:start(4). 
 
 
 
