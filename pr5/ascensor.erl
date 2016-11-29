@@ -36,6 +36,7 @@ ascensorProc(e1,Button,[]) -> receive
 	%A -> io:format("MISSATGE DESCONEGUT: ~p~n",[A]),ascensorProc(e1,Button)
 end;
 
+%AQUEST PROCES S'UTILITZA PER ENCUAR ELS MISSATGES. EN AQUESTA PRÀCTICA NO L'UTILITZEM JA QUE QUAN VA A UN PIS NO REP PETICIONS DELS ALTRES PISOS.
 ascensorProc(e1,Button,List) -> receive
 	{sens_pl,Button} -> stop(),light_off(Button),display(Button),NextFloor=lists:nth(1,lists:reverse(List)),
 		case NextFloor > Button of
