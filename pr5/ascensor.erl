@@ -19,7 +19,7 @@ light_on(P) -> botonera ! {light_on,P}.
 display(P) -> botonera ! {display,P}.
 kill(Var) -> Var ! kill.
 killAll() -> stop(),kill(motor),aborted.
-abort() -> ascensor!abort.
+abort() -> ascensor!{abort,bppool}.
 pushed(Pis) -> ascensor ! {clicked,Pis}. 
 
 ascensorProc(e0,down,Button) -> light_on(Button), run_down(), ascensorProc(e1,Button,[]);
@@ -63,27 +63,31 @@ end.
 ascensorProc(BotoAct) -> receive
 	{clicked,K} when K < BotoAct -> set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,down,K);
 	{clicked,K} when K > BotoAct -> set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,up,K);
+	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
 	{clicked,_} -> ascensorProc(BotoAct);
 	kill -> ok;
-	abort -> killAll(),bppool:kill(),wxenv!kill
+	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera)
 end.
 
 estatReset(e0) -> receive
 	reset -> io:format("Fent reset...~n"), run_down(), estatReset(e1); %Rebem un reset del sensor
-	abort -> killAll(),bppool:kill(),wxenv!kill;
+	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
+	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
 	_ -> estatReset(e0)
 end;
 
 estatReset(e1) -> receive
 	at_bottom -> run_up(), estatReset(e2);
 	reset -> io:format("Fent reset...~n"),estatReset(e0);
-	abort -> killAll(),bppool:kill(),wxenv!kill;
+	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
+	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
 	_ -> estatReset(e1)
 end;
 
 estatReset(e2) -> receive
 	{sens_pl,0} -> stop(), ascensorProc(0);
-	abort -> killAll(), bppool:kill(),wxenv!kill; 
+	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
+	abort -> killAll(), bppool:kill(),wxenv!kill,kill(botonera); 
 	_ -> estatReset(e2)
 end.
 
