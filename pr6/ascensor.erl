@@ -1,7 +1,8 @@
 -module(ascensor).
 -import(motor,[start/1]).
 -import(bppool,[display/2,set_light/3,kill/0,envia_a_tots_excepte/3]).
--export([start/0,ascensorProc/1,abort/0,ascensorProc/3,estatReset/1,checkDifferentInList/2,pushed/1]).
+-import(cdoors,[startPortes/0]).
+-export([start/0,ascensorProc/1,abort/0,ascensorProc/3,estatReset/1,checkDifferentInList/2,pushed/1,doors_open/0,doors_closed/0]).
 
 removeLast([]) -> [];
 removeLast([_]) -> [] ++ removeLast([]);
@@ -21,6 +22,11 @@ kill(Var) -> Var ! kill.
 killAll() -> stop(),kill(motor),aborted.
 abort() -> ascensor!{abort,bppool}.
 pushed(Pis) -> ascensor ! {clicked,Pis}. 
+doors_open() -> ascensor ! doors_opened.
+doors_closed() -> ascensor ! doors_closed.
+obre_portes() -> cdoors ! open_doors.
+tanca_portes() -> cdoors ! close_doors.
+
 
 ascensorProc(e0,down,Button) -> light_on(Button), run_down(), ascensorProc(e1,Button,[]);
 
@@ -62,13 +68,41 @@ ascensorProc(e1,Button,List) -> receive
 end.
 
 ascensorProc(BotoAct) -> receive
-	{clicked,K} when K < BotoAct -> set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,down,K);
-	{clicked,K} when K > BotoAct -> set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K),ascensorProc(e0,up,K);
+	{clicked,BotoAct} -> procesPorta(BotoAct,open);
+	{clicked,K} when K < BotoAct -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,open),set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K);
+	{clicked,K} when K > BotoAct -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,open),set_light(K,all,on),envia_a_tots_excepte(display,"BUSY",K);
+	doors_open -> bppool:display(BotoAct,"OPEN"), ascensorProc(BotoAct);
+	doors_closed -> bppool:display(BotoAct,"CLOSE"), ascensorProc(BotoAct);
 	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
 	{clicked,_} -> ascensorProc(BotoAct);
 	kill -> ok;
 	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera)
 end.
+
+procesPorta(BotoAct,close) -> receive
+	open_doors -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening);
+	close_doors -> procesPorta(BotoAct,close);
+	{clicked,Pis} -> ascensorProc(e0,down,Pis)
+end;
+
+procesPorta(BotoAct,opening) -> receive
+	doors_opened -> bppool:display(BotoAct,"OPEN"),procesPorta(BotoAct,open)
+end;
+
+procesPorta(BotoAct,open) ->
+	receive
+		{clicked,Pis} -> procesPorta;
+		open_doors -> procesPorta(BotoAct,open);
+		close_doors -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing)
+	after 10000 -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing)
+end;
+
+procesPorta(BotoAct,closing) ->
+	receive
+		open_doors -> obre_portes(),bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening);
+		doors_closed -> bppool:display(BotoAct,"CLOSE"),procesPorta(BotoAct,close)
+	end.
+
 
 estatReset(e0) -> receive
 	reset -> io:format("Fent reset...~n"), run_down(), estatReset(e1); %Rebem un reset del sensor
@@ -86,14 +120,14 @@ estatReset(e1) -> receive
 end;
 
 estatReset(e2) -> receive
-	{sens_pl,0} -> stop(), ascensorProc(0);
+	{sens_pl,0} -> stop(), procesPorta(0,close);
 	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
 	abort -> killAll(), bppool:kill(),wxenv!kill,kill(botonera); 
 	_ -> estatReset(e2)
 end.
 
 
-start() -> register(ascensor,spawn(?MODULE, estatReset, [e0])),register(botonera,bcab:new(4,ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [5.5])),sensor ! ready,initial_reset, wxenv:start(), bppool:start(4). 
+start() -> register(ascensor,spawn(?MODULE, estatReset, [e0])),register(botonera,bcab:new(4,ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [5.5])),sensor ! ready,wxenv:start(), register(cdoors,cdoors:startPortes()),bppool:start(4). 
 
 
 
