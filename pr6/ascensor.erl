@@ -15,8 +15,8 @@ light_off(P) -> botonera ! {light_off,P}.
 light_on(P) -> botonera ! {light_on,P}.
 display(P) -> botonera ! {display,P}.
 kill(Var) -> Var ! kill.
-killAll() -> stop(),kill(motor),cdoors ! abort,aborted.
-abort() -> ascensor!{abort,bppool}.
+killAll() -> stop(),kill(motor),bppool:kill(),kill(wxenv),kill(cdoors),aborted.
+abort() -> ascensor ! {abort,bpis1}.
 pushed(Pis) -> ascensor ! {clicked,Pis}. 
 doors_open() -> ascensor ! doors_opened.
 doors_closed() -> ascensor ! doors_closed.
@@ -32,7 +32,8 @@ ascensorProc(e1,Button) -> receive
 	{sens_pl, Button} -> stop(),display(Button),light_off(Button), set_light(Button,all,off),bppool:display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),obre_portes(),bppool:display(Button,"OPENING"),procesPorta(Button,opening);
 	{sens_pl, K} -> display(K), display(Button,K),ascensorProc(e1,Button);
 	{clicked,_} -> ascensorProc(e1,Button);
-	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera)
+	{abort,bpis1} -> killAll(), kill(botonera);
+	abort -> killAll()
 end.
 
 procesPorta(BotoAct,close) -> receive
@@ -41,16 +42,14 @@ procesPorta(BotoAct,close) -> receive
 	{clicked,Pis} when Pis < BotoAct -> set_light(Pis,all,on),envia_a_tots_excepte(display,"BUSY",Pis),ascensorProc(e0,down,Pis);
 	{clicked,Pis} when Pis > BotoAct -> set_light(Pis,all,on),envia_a_tots_excepte(display,"BUSY",Pis),ascensorProc(e0,up,Pis);
 	{clicked,BotoAct} -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening);
-	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
-	kill -> ok;
-	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera)
+	{abort,bpis1} -> killAll(), kill(botonera);
+	abort -> killAll()
 end;
 
 procesPorta(BotoAct,opening) -> receive
 	doors_opened -> bppool:display(BotoAct,"OPEN"),procesPorta(BotoAct,open);
-	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
-	kill -> ok;
-	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera)
+	{abort,bpis1} -> killAll(), kill(botonera);
+	abort -> killAll()
 end;
 
 procesPorta(BotoAct,open) ->
@@ -58,9 +57,8 @@ procesPorta(BotoAct,open) ->
 		{clicked,BotoAct} -> procesPorta(BotoAct,open);
 		open_doors -> procesPorta(BotoAct,open);
 		close_doors -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing);
-		{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
-		kill -> ok;
-		abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera)
+		{abort,bpis1} -> killAll(), kill(botonera);
+		abort -> killAll()
 	after 10000 -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing)
 end;
 
@@ -69,30 +67,27 @@ procesPorta(BotoAct,closing) ->
 		open_doors -> obre_portes(),bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening);
 		doors_closed -> bppool:display(BotoAct,"CLOSE"),procesPorta(BotoAct,close);
 		{clicked,BotoAct} -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening);
-		{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
-		kill -> ok;
-		abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera)
+		{abort,bpis1} -> killAll(), kill(botonera);
+		abort -> killAll()
 	end.
 
 estatReset(e0) -> receive
 	reset -> io:format("Fent reset...~n"), run_down(), estatReset(e1); %Rebem un reset del sensor
-	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
-	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
 	_ -> estatReset(e0)
 end;
 
 estatReset(e1) -> receive
 	at_bottom -> run_up(), estatReset(e2);
 	reset -> io:format("Fent reset...~n"),estatReset(e0);
-	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
-	abort -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
+	{abort,bpis1} -> killAll(), kill(botonera);
+	abort -> killAll();
 	_ -> estatReset(e1)
 end;
 
 estatReset(e2) -> receive
 	{sens_pl,0} -> stop(), procesPorta(0,close);
-	{abort,bppool} -> killAll(),bppool:kill(),wxenv!kill,kill(botonera);
-	abort -> killAll(), bppool:kill(),wxenv!kill,kill(botonera); 
+	{abort,bpis1} -> killAll(), kill(botonera);
+	abort -> killAll();
 	_ -> estatReset(e2)
 end.
 

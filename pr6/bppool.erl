@@ -22,7 +22,7 @@ procPisos(Pisos) -> receive
 	{set_light,Pis,all,off} -> lists:nth(Pis+1,Pisos) ! {light_off,up}, lists:nth(Pis+1,Pisos) ! {light_off,down},procPisos(Pisos);
 	{set_light,Pis,N,on} -> lists:nth(Pis+1,Pisos) ! {light_on,N},procPisos(Pisos);
 	{set_light,Pis,N,off} -> lists:nth(Pis+1,Pisos) ! {light_off,N},procPisos(Pisos);
-	kill -> envia_a_tots(Pisos,kill), killed
+	kill -> envia_a_tots(Pisos,kill),killed
 
 end.
 
