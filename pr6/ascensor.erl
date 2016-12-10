@@ -33,7 +33,7 @@ ascensorProc(e0,down,Button) -> light_on(Button), run_down(), ascensorProc(e1,Bu
 ascensorProc(e0,up,Button) -> light_on(Button), run_up(), ascensorProc(e1,Button,[]);
 
 ascensorProc(e1,Button,[]) -> receive
-	{sens_pl, Button} -> stop(),display(Button),light_off(Button), set_light(Button,all,off),bppool:display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),ascensorProc(Button);
+	{sens_pl, Button} -> stop(),display(Button),light_off(Button), set_light(Button,all,off),bppool:display(Button,"HERE"),envia_a_tots_excepte(display,Button,Button),obre_portes(),bppool:display(Button,"OPENING"),procesPorta(Button,opening);
 	{sens_pl, K} -> display(K), display(Button,K),ascensorProc(e1,Button,[]);
 	{clicked,_} -> ascensorProc(e1,Button,[]);
 	%Si afegim aquesta linia activem la possibilitat de poder cridar l'ascensor amb cua
@@ -82,7 +82,9 @@ end.
 procesPorta(BotoAct,close) -> receive
 	open_doors -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening);
 	close_doors -> procesPorta(BotoAct,close);
-	{clicked,Pis} -> ascensorProc(e0,down,Pis)
+	{clicked,Pis} when Pis < BotoAct -> ascensorProc(e0,down,Pis);
+	{clicked,Pis} when Pis > BotoAct -> ascensorProc(e0,up,Pis);
+	{clicked,BotoAct} -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening)
 end;
 
 procesPorta(BotoAct,opening) -> receive
@@ -91,7 +93,7 @@ end;
 
 procesPorta(BotoAct,open) ->
 	receive
-		{clicked,Pis} -> procesPorta;
+		{clicked,Pis} -> procesPorta(BotoAct,open);
 		open_doors -> procesPorta(BotoAct,open);
 		close_doors -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing)
 	after 10000 -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing)
@@ -102,6 +104,8 @@ procesPorta(BotoAct,closing) ->
 		open_doors -> obre_portes(),bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening);
 		doors_closed -> bppool:display(BotoAct,"CLOSE"),procesPorta(BotoAct,close)
 	end.
+
+
 
 
 estatReset(e0) -> receive
