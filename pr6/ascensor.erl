@@ -39,7 +39,7 @@ ascensorProc(e1,Button,List) -> receive
 	{sens_pl, K} -> display(K), display(Button,K),ascensorProc(e1,Button,List);
 	{clicked,N} when List =/= [] -> case N =:= lists:nth(1,lists:reverse(List)) of
 			true -> io:format("El pis ja s'ha cridat!~n"), ascensorProc(e1,Button,List);
-			false -> encenPis(N), io:format("Aviso Pis quan esta pujant o baixant ~p~n",[N]),ascensorProc(e1,Button,[N|List]) 
+			false -> encenPis(N), io:format("Aviso Pis ~p quan esta pujant o baixant ~n",[N]),ascensorProc(e1,Button,[N|List]) 
 			end;
 	{clicked,N} -> ascensorProc(e1,Button,[N]);
 	{abort,bpis1} -> killAll(), kill(botonera);
@@ -66,9 +66,9 @@ procesPorta(BotoAct,opening,List) -> receive
 	{clicked,BotoAct} -> procesPorta(BotoAct,opening,List);
 	{clicked,Pis} when List =/= [] -> case Pis =:= lists:nth(1,lists:reverse(List)) of
 			true -> io:format("El pis ja s'ha cridat!~n"), procesPorta(BotoAct,opening,List);
-			false -> encenPis(Pis), io:format("Aviso Pis quan esta obrint ~p~n",[Pis]),procesPorta(BotoAct,opening,[Pis|List]) 
+			false -> encenPis(Pis), io:format("Aviso Pis ~p quan esta obrint ~n",[Pis]),procesPorta(BotoAct,opening,[Pis|List]) 
 			end;
-	{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis quan esta obrint ~p~n",[Pis]),procesPorta(BotoAct,opening,[Pis]);
+	{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis ~p quan esta obrint ~n",[Pis]),procesPorta(BotoAct,opening,[Pis]);
 	{abort,bpis1} -> killAll(), kill(botonera);
 	abort -> killAll()
 end;
@@ -78,9 +78,9 @@ procesPorta(BotoAct,open,List) ->
 		{clicked,BotoAct} -> procesPorta(BotoAct,open,List);
 		{clicked,Pis} when List =/= [] -> case Pis =:= lists:nth(1,lists:reverse(List)) of
 				true -> io:format("El pis ja s'ha cridat!~n"),procesPorta(BotoAct,open,List);
-				false -> encenPis(Pis),io:format("Aviso Pis quan esta obert ~p~n",[Pis]),procesPorta(BotoAct,open,[Pis|List])
+				false -> encenPis(Pis),io:format("Aviso Pis ~p quan esta obert ~n",[Pis]),procesPorta(BotoAct,open,[Pis|List])
 				end;
-		{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis quan esta obert ~p~n",[Pis]),procesPorta(BotoAct,open,[Pis|List]);
+		{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis ~p quan esta obert ~n",[Pis]),procesPorta(BotoAct,open,[Pis|List]);
 		open_doors -> procesPorta(BotoAct,open,List);
 		close_doors -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List);
 		{abort,bpis1} -> killAll(), kill(botonera);
@@ -95,9 +95,9 @@ procesPorta(BotoAct,closing,List) ->
 		{clicked,BotoAct} -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening,List);
 		{clicked,Pis} when List =/= [] -> case Pis =:= lists:nth(1,lists:reverse(List)) of
 				true -> io:format("El pis ja s'ha cridat!~n"),procesPorta(BotoAct,closing,List);
-				false -> encenPis(Pis), io:format("Aviso Pis quan esta tancant ~p~n",[Pis]),procesPorta(BotoAct,closing,[Pis|List]) 
+				false -> encenPis(Pis), io:format("Aviso Pis ~p quan esta tancant~n",[Pis]),procesPorta(BotoAct,closing,[Pis|List]) 
 				end;
-		{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis quan esta tancant ~p~n",[Pis]), procesPorta(BotoAct,closing,[Pis]);
+		{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis ~p quan esta tancant~n",[Pis]), procesPorta(BotoAct,closing,[Pis]);
 		{abort,bpis1} -> killAll(), kill(botonera);
 		abort -> killAll()
 	end.
