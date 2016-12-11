@@ -26,7 +26,6 @@ doors_closed() -> ascensor ! doors_closed.
 obre_portes() -> cdoors ! open_doors.
 tanca_portes() -> cdoors ! close_doors.
 
-
 ascensorProc(e0,down,Button) -> light_on(Button), run_down(), ascensorProc(e1,Button,[]);
 
 ascensorProc(e0,up,Button) -> light_on(Button), run_up(), ascensorProc(e1,Button,[]);
@@ -39,7 +38,6 @@ ascensorProc(e1,Button,List) -> receive
 	abort -> killAll()
 end.
 
-
 procesPorta(BotoAct,close,[]) -> receive
 	open_doors -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening,[]);
 	close_doors -> procesPorta(BotoAct,close,[]);
@@ -51,12 +49,14 @@ procesPorta(BotoAct,close,[]) -> receive
 end;
 
 procesPorta(BotoAct,close,List) -> Next = lists:nth(1,lists:reverse(List)), case Next > BotoAct of
-	true -> run_up(), ascensorProc(e1,Next,removeLast(List));
-	false -> run_down(), ascensorProc(e1,Next,removeLast(List))
+	true -> run_up(), envia_a_tots_excepte(display,"BUSY",Next),ascensorProc(e1,Next,removeLast(List));
+	false -> run_down(), envia_a_tots_excepte(display,"BUSY",Next),ascensorProc(e1,Next,removeLast(List))
 end;
 
 procesPorta(BotoAct,opening,List) -> receive
 	doors_opened -> bppool:display(BotoAct,"OPEN"),procesPorta(BotoAct,open,List);
+	{clicked,BotoAct} -> procesPorta(BotoAct,opening,List);
+	{clicked,Pis} -> set_light(Pis,all,on), light_on(Pis), io:format("Aviso Pis quan esta obrint ~p~n",[Pis]),procesPorta(BotoAct,opening,[Pis|List]);
 	{abort,bpis1} -> killAll(), kill(botonera);
 	abort -> killAll()
 end;
@@ -64,6 +64,7 @@ end;
 procesPorta(BotoAct,open,List) ->
 	receive
 		{clicked,BotoAct} -> procesPorta(BotoAct,open,List);
+		{clicked,Pis} -> set_light(Pis,all,on), light_on(Pis), io:format("Aviso Pis quan esta obert ~p~n",[Pis]),procesPorta(BotoAct,open,[Pis|List]);
 		open_doors -> procesPorta(BotoAct,open,List);
 		close_doors -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List);
 		{abort,bpis1} -> killAll(), kill(botonera);
@@ -76,6 +77,7 @@ procesPorta(BotoAct,closing,List) ->
 		open_doors -> obre_portes(),bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening,List);
 		doors_closed -> bppool:display(BotoAct,"CLOSE"),procesPorta(BotoAct,close,List);
 		{clicked,BotoAct} -> obre_portes(), bppool:display(BotoAct,"OPENING"),procesPorta(BotoAct,opening,List);
+		{clicked,Pis} -> set_light(Pis,all,on), light_on(Pis), io:format("Aviso Pis ~p quan esta tancant~n",[Pis]),procesPorta(BotoAct,closing,[Pis|List]);
 		{abort,bpis1} -> killAll(), kill(botonera);
 		abort -> killAll()
 	end.
