@@ -85,7 +85,7 @@ procesPorta(BotoAct,open,List) ->
 		{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis ~p quan esta obert ~n",[Pis]),procesPorta(BotoAct,open,[Pis|List]);
 		open_doors -> procesPorta(BotoAct,open,List);
 		close_doors -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List);
-		is_closing -> bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List);
+		is_closing -> bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List); %Avís de que s'està tancant
 		{abort,bpis1} -> killAll(), kill(botonera);
 		abort -> killAll()
 	
@@ -119,7 +119,7 @@ estatReset(e1) -> receive
 end;
 
 estatReset(e2) -> receive
-	{sens_pl,0} -> stop(), procesPorta(0,close,[]);
+	{sens_pl,0} -> stop(), bppool:display(0,"CLOSE"),procesPorta(0,close,[]);
 	{abort,bpis1} -> killAll(), kill(botonera);
 	abort -> killAll();
 	_ -> estatReset(e2)
