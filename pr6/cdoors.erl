@@ -1,5 +1,5 @@
 -module(cdoors).
--import(ascensor,[doors_open/0,doors_closed/0]).
+-import(ascensor,[doors_open/0,doors_closed/0,is_closing/0]).
 -export([startPortes/0,procPortes/1,procPortes/2]).
 
 procPortes(4000,close) -> procPortes(4000);
@@ -31,6 +31,8 @@ procPortes(0) -> ascensor:doors_open(), receive
 	open_doors -> ascensor:doors_open();
 	kill -> ok;
 	_ -> procPortes(0)
+
+	after 10000 -> ascensor:is_closing(),procPortes(0,close)
 end.
 
 startPortes() -> spawn(?MODULE,procPortes,[4000]).

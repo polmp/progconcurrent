@@ -2,7 +2,7 @@
 -import(motor,[start/1]).
 -import(bppool,[display/2,set_light/3,kill/0,envia_a_tots_excepte/3]).
 -import(cdoors,[startPortes/0]).
--export([start/0,abort/0,ascensorProc/3,procesPorta/3,estatReset/1,checkDifferentInList/2,pushed/1,doors_open/0,doors_closed/0]).
+-export([start/0,abort/0,ascensorProc/3,procesPorta/3,estatReset/1,checkDifferentInList/2,pushed/1,doors_open/0,doors_closed/0,is_closing/0]).
 
 checkDifferentInList(A,[A|G]) -> checkDifferentInList(A,G);
 checkDifferentInList(_,List) -> List.
@@ -23,6 +23,8 @@ abort() -> ascensor ! {abort,bpis1}.
 pushed(Pis) -> ascensor ! {clicked,Pis}. 
 doors_open() -> ascensor ! doors_opened.
 doors_closed() -> ascensor ! doors_closed.
+
+is_closing() -> ascensor ! is_closing.
 obre_portes() -> cdoors ! open_doors.
 tanca_portes() -> cdoors ! close_doors.
 encenPis(Pis) -> set_light(Pis,all,on), light_on(Pis).
@@ -83,9 +85,10 @@ procesPorta(BotoAct,open,List) ->
 		{clicked,Pis} -> encenPis(Pis),io:format("Aviso Pis ~p quan esta obert ~n",[Pis]),procesPorta(BotoAct,open,[Pis|List]);
 		open_doors -> procesPorta(BotoAct,open,List);
 		close_doors -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List);
+		is_closing -> bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List);
 		{abort,bpis1} -> killAll(), kill(botonera);
 		abort -> killAll()
-	after 10000 -> tanca_portes(),bppool:display(BotoAct,"CLOSING"),procesPorta(BotoAct,closing,List)
+	
 end;
 
 procesPorta(BotoAct,closing,List) ->
