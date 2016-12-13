@@ -43,7 +43,7 @@ ascensorProc(e1,Button,List) -> receive
 			true -> io:format("El pis ja s'ha cridat!~n"), ascensorProc(e1,Button,List);
 			false -> encenPis(N), io:format("Aviso Pis ~p quan esta pujant o baixant ~n",[N]),ascensorProc(e1,Button,[N|List]) 
 			end;
-	{clicked,N} -> ascensorProc(e1,Button,[N]);
+	{clicked,N} -> encenPis(N), io:format("Aviso Pis ~p quan esta pujant o baixant ~n",[N]),ascensorProc(e1,Button,[N]);
 	{abort,bpis1} -> killAll(), kill(botonera);
 	abort -> killAll()
 end.
@@ -127,9 +127,3 @@ end.
 
 
 start() -> register(ascensor,spawn(?MODULE, estatReset, [e0])),register(botonera,bcab:new(4,ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [2])),sensor ! ready,wxenv:start(), register(cdoors,cdoors:startPortes()),bppool:start(4). 
-
-
-
-
-
-
