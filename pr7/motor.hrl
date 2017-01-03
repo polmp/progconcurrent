@@ -1,0 +1,3 @@
+-define(RESOL,100).
+-define(MAXREC,22).
+-define(VELCAB,0.6).
