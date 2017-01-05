@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <util/delay.h>
+#include <stdlib.h>
 
 static pin_t P0;
 static pin_t P1;
@@ -91,14 +92,13 @@ P2 = pin_create(&PORTC,2,Input);
 P3 = pin_create(&PORTC,3,Input);
 P4 = pin_create(&PORTC,4,Input);
 P5 = pin_create(&PORTC,5,Input);
-/*
+
 pin_t P0LED = pin_create(&PORTB,5,Output);
 pin_t P1LED = pin_create(&PORTB,4,Output);
 pin_t P2LED = pin_create(&PORTB,3,Output);
 pin_t P3LED = pin_create(&PORTB,2,Output);
 pin_t P4LED = pin_create(&PORTB,1,Output);
 pin_t P5LED = pin_create(&PORTB,0,Output);
-*/
 
 TANCARPORTES = pin_create(&PORTD,2,Input);
 OBRIRPORTES = pin_create(&PORTD,3,Input);
@@ -122,8 +122,92 @@ PCMSK2|=0b00001100;
 sei();
 
 serial_open();
+int estat=0;
+char a;
+char b;
 
-while(1);
+while(1){
+  switch(estat){
+    case 0:
+      serial_put('0');
+      a=serial_get();
+      if((a == 'E') || (a=='A') || (a=='D')){
+        estat=1;
+      }
+      break;
+    case 1:
+      serial_put('1');
+      b=serial_get();
+      if((b == 'E') || (b=='A') || (b=='D')){
+        estat=1;
+        a=b;
+      }
+      else if(b == '0'){
+        estat=2;
+      }
+      else if(!atoi(&b)){ //No es un numero
+        estat=0;
+      }
+      else{
+        estat=2;
+      }
+      break;
+    case 2:
+      serial_put('2');
+      switch(a){
+        case 'E':
+          switch(atoi(&b)){
+            case 0:
+              pin_w(P0LED,true);
+              break;
+            case 1:
+              pin_w(P1LED,true);
+              break;
+            case 2:
+              pin_w(P2LED,true);
+              break;
+              case 3:
+              pin_w(P3LED,true);
+              break;
+            case 4:
+              pin_w(P4LED,true);
+              break;
+            case 5:
+              pin_w(P5LED,true);
+              break;
+            }
+        break;
+
+      case 'A':
+        switch(atoi(&b)){
+          case 0:
+            pin_w(P0LED,false);
+            break;
+          case 1:
+            pin_w(P1LED,false);
+            break;
+          case 2:
+            pin_w(P2LED,false);
+            break;
+          case 3:
+            pin_w(P3LED,false);
+            break;
+          case 4:
+            pin_w(P4LED,false);
+            break;
+          case 5:
+            pin_w(P5LED,false);
+            break;
+        }
+      break;
+
+      }
+      estat=0;
+
+  }
+
+
+}
 
 return 0;
 }
