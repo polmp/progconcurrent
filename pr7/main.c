@@ -129,15 +129,17 @@ char b;
 while(1){
   switch(estat){
     case 0:
-      serial_put('0');
+      //serial_put('0');
       a=serial_get();
+      serial_put(a);
       if((a == 'E') || (a=='A') || (a=='D')){
         estat=1;
       }
       break;
     case 1:
-      serial_put('1');
+      //serial_put('1');
       b=serial_get();
+      serial_put(b);
       if((b == 'E') || (b=='A') || (b=='D')){
         estat=1;
         a=b;
@@ -153,7 +155,7 @@ while(1){
       }
       break;
     case 2:
-      serial_put('2');
+      //serial_put('2');
       switch(a){
         case 'E':
           switch(atoi(&b)){
@@ -201,8 +203,34 @@ while(1){
         }
       break;
 
-      }
-      estat=0;
+      case 'D':
+        switch(atoi(&b)){
+          case 0:
+            PORTD=0x00;
+            break;
+          case 1:
+            PORTD=0x10;
+            break;
+          case 2:
+            PORTD=0x80;
+            break;
+          case 3:
+            PORTD=0x90;
+            break;
+          case 4:
+            PORTD=0x40;
+            break;
+          case 5:
+            PORTD=0x50;
+            break;
+          }
+
+      break;
+
+
+    }
+    estat=0;
+
 
   }
 
