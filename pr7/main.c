@@ -22,37 +22,31 @@ ISR(PCINT1_vect){
     serial_put('B');
     serial_put('0');
     serial_put('\n');
-    serial_put('\r');
   }
   else if(!pin_r(P1)){
     serial_put('B');
     serial_put('1');
     serial_put('\n');
-    serial_put('\r');
   }
   else if(!pin_r(P2)){
     serial_put('B');
     serial_put('2');
     serial_put('\n');
-    serial_put('\r');
   }
   else if(!pin_r(P3)){
     serial_put('B');
     serial_put('3');
     serial_put('\n');
-    serial_put('\r');
   }
   else if(!pin_r(P4)){
     serial_put('B');
     serial_put('4');
     serial_put('\n');
-    serial_put('\r');
   }
   else if(!pin_r(P5)){
     serial_put('B');
     serial_put('5');
     serial_put('\n');
-    serial_put('\r');
   }
   else{
     //serial_put('F');
