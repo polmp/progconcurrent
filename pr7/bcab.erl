@@ -5,9 +5,9 @@
 loop(P,Port) -> receive
 	{Port,{data,"OP\n"}} -> P!open_doors, loop(P,Port);
 	{Port,{data,"TP\n"}} -> P!close_doors, loop(P,Port);
-	{Port,{data,"B0\n"}} -> P!{clicked,0}, loop(P,Port);
-	{Port,{data,"B1\n"}} -> P!{clicked,1}, loop(P,Port);
-	{Port,{data,"B2\n"}} -> P!{clicked,2}, loop(P,Port);
+	{Port,{data,"B0\n"}} -> io:format("CLICO ~p~n",[0]),P!{clicked,0}, loop(P,Port);
+	{Port,{data,"B1\n"}} -> io:format("CLICO ~p~n",[1]),P!{clicked,1}, loop(P,Port);
+	{Port,{data,"B2\n"}} -> io:format("CLICO ~p~n",[2]),P!{clicked,2}, loop(P,Port);
 	{Port,{data,"B3\n"}} -> P!{clicked,3}, loop(P,Port);
 	{Port,{data,"B4\n"}} -> P!{clicked,4}, loop(P,Port);
 	{Port,{data,"B5\n"}} -> P!{clicked,5}, loop(P,Port);
