@@ -204,24 +204,26 @@ while(1){
       break;
 
       case 'D':
+        PORTD&= 0b00001111;
         switch(atoi(&b)){
           case 0:
-            PORTD=0x00;
+            serial_put('0');
+            PORTD|=0x00;
             break;
           case 1:
-            PORTD=0x10;
+            PORTD|=0x10;
             break;
           case 2:
-            PORTD=0x80;
+            PORTD|=0x80;
             break;
           case 3:
-            PORTD=0x90;
+            PORTD|=0x90;
             break;
           case 4:
-            PORTD=0x40;
+            PORTD|=0x40;
             break;
           case 5:
-            PORTD=0x50;
+            PORTD|=0x50;
             break;
           }
 
