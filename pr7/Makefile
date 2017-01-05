@@ -2,7 +2,7 @@ CC=avr-gcc
 CPPFLAGS=-DF_CPU=16000000UL
 CFLAGS=-Wall -std=c99 -Os -mmcu=atmega328p -fshort-enums -Ilibpbn
 LDFLAGS=-mmcu=atmega328p
-DEVICE=/dev/ttyACM0
+DEVICE=/dev/tty.usbmodem1411
 SECONDDEVICE=/dev/tty.usbmodem1421
 
 vpath lib% libpbn 
