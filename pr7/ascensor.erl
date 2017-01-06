@@ -126,4 +126,4 @@ estatReset(e2) -> receive
 end.
 
 
-start() -> register(ascensor,spawn(?MODULE, estatReset, [e0])),register(botonera,bcab:new(ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [2])),sensor ! ready,wxenv:start(), register(cdoors,cdoors:startPortes()),bppool:start(4). 
+start() -> register(ascensor,spawn(?MODULE, estatReset, [e0])),register(botonera,bcab:new(ascensor)),register(sensor,spawn(sensor, sensorProc,[])),register(motor,spawn(motor, startMotor, [2])),sensor ! ready,wxenv:start(), register(cdoors,cdoors:startPortes()),bppool:start(6). 

@@ -22,7 +22,7 @@ sensorProc() -> receive
 	at_top -> at_top(), sensorProc(); %al ascensor
 	at_bottom -> at_bottom(), sensorProc();
 	ready -> reset(), sensorProc(); %Quan rebem un ready, acabem d'inicialitzar el motor, enviem un reset al ascensor
-	{at,P} -> case calculaSensor(P,[{0,0.5},{1,5.5},{2,8.5},{3,12.5}]) of
+	{at,P} -> case calculaSensor(P,[{0,0.5},{1,5.5},{2,8.5},{3,12.5},{4,16.5},{5,19.5}]) of
 		undef -> sensorProc();
 		{Val,_} -> io:format("EnvioSensorPis -> ~p~n",[Val]),sens_pl(Val),sensorProc()  %Enviem pid al ascensor 
 	end 

@@ -1,5 +1,6 @@
 #define F_CPU 16000000UL
 #define BAUD 9600
+#define DELAY 150
 #include <pbn.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -51,7 +52,7 @@ ISR(PCINT1_vect){
   else{
     //serial_put('F');
   }
-  _delay_ms(150);
+  _delay_ms(DELAY);
 
 }
 
@@ -73,7 +74,7 @@ ISR(PCINT2_vect){
 
   }
 
-_delay_ms(150);
+_delay_ms(DELAY);
 }
 
 
@@ -109,7 +110,7 @@ PCMSK1|=0b00111111;
 
 //Configuracio portes
 //PortD2/D3 -> Necessitem interrupció PCI2
-//PCMSK -> Nomes
+//PCMSK
 PCMSK2&=0b00000000;
 PCMSK2|=0b00001100;
 
@@ -117,15 +118,15 @@ sei();
 
 serial_open();
 int estat=0;
-char a;
-char b;
+char a=-1;
+char b=-1;
 
 while(1){
   switch(estat){
     case 0:
       //serial_put('0');
       a=serial_get();
-      serial_put(a);
+      //serial_put(a);
       if((a == 'E') || (a=='A') || (a=='D')){
         estat=1;
       }
@@ -133,7 +134,7 @@ while(1){
     case 1:
       //serial_put('1');
       b=serial_get();
-      serial_put(b);
+      //serial_put(b);
       if((b == 'E') || (b=='A') || (b=='D')){
         estat=1;
         a=b;
@@ -201,7 +202,6 @@ while(1){
         PORTD&= 0b00001111;
         switch(atoi(&b)){
           case 0:
-            serial_put('0');
             PORTD|=0x00;
             break;
           case 1:
