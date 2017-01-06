@@ -49,9 +49,6 @@ ISR(PCINT1_vect){
     serial_put('5');
     serial_put('\n');
   }
-  else{
-    //serial_put('F');
-  }
   _delay_ms(DELAY);
 
 }
@@ -61,20 +58,14 @@ ISR(PCINT2_vect){
     serial_put('T');
     serial_put('P');
     serial_put('\n');
-    serial_put('\r');
   }
 
   else if(!pin_r(OBRIRPORTES)){
     serial_put('O');
     serial_put('P');
     serial_put('\n');
-    serial_put('\r');
   }
-  else{
-
-  }
-
-_delay_ms(DELAY);
+ _delay_ms(DELAY);
 }
 
 
@@ -170,7 +161,7 @@ while(1){
             }
         break;
 
-      case 'A':
+     case 'A':
         switch(atoi(&b)){
           case 0:
             pin_w(P0LED,false);
