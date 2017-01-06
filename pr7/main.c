@@ -124,17 +124,13 @@ char b=-1;
 while(1){
   switch(estat){
     case 0:
-      //serial_put('0');
       a=serial_get();
-      //serial_put(a);
       if((a == 'E') || (a=='A') || (a=='D')){
         estat=1;
       }
       break;
     case 1:
-      //serial_put('1');
       b=serial_get();
-      //serial_put(b);
       if((b == 'E') || (b=='A') || (b=='D')){
         estat=1;
         a=b;
@@ -150,7 +146,6 @@ while(1){
       }
       break;
     case 2:
-      //serial_put('2');
       switch(a){
         case 'E':
           switch(atoi(&b)){
