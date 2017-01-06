@@ -3,8 +3,8 @@
 -define(PORTARD,"/dev/ttyACM0").
 
 loop(P,Port) -> receive
-	{Port,{data,"OP\n"}} -> P!open_doors,loop(P,Port);
-	{Port,{data,"TP\n"}} -> P!close_doors,loop(P,Port);
+	{Port,{data,"OP\n"}} -> P!open_doors,timer:sleep(200),loop(P,Port);
+	{Port,{data,"TP\n"}} -> P!close_doors,timer:sleep(200),loop(P,Port);
 	{Port,{data,"B0\n"}} -> P!{clicked,0},timer:sleep(200),loop(P,Port);
 	{Port,{data,"B1\n"}} -> P!{clicked,1},timer:sleep(200),loop(P,Port);
 	{Port,{data,"B2\n"}} -> P!{clicked,2},timer:sleep(200),loop(P,Port);
